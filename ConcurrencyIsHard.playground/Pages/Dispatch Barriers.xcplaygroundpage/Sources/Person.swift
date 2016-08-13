@@ -32,7 +32,7 @@ public class Person {
     self.lastName = lastName
   }
   
-  public func changeName(firstName firstName: String, lastName: String) {
+  public func changeName(firstName: String, lastName: String) {
     randomDelay(0.2)
     self.firstName = firstName
     randomDelay(1)

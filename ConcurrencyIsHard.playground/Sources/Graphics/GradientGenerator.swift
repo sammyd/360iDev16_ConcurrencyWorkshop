@@ -24,25 +24,24 @@ import UIKit
 
 func topAndBottomGradient(size: CGSize, clearLocations: [CGFloat] = [0.35, 0.65], innerIntensity: CGFloat = 0.5) -> UIImage {
   
-  let context = CGBitmapContextCreate(nil, Int(size.width), Int(size.height), 8, 0, CGColorSpaceCreateDeviceGray(), CGImageAlphaInfo.None.rawValue)
+  let renderer = UIGraphicsImageRenderer(size: size)
   
-  let colors = [
-    UIColor.whiteColor(),
-    UIColor(white: innerIntensity, alpha: 1.0),
-    UIColor.blackColor(),
-    UIColor(white: innerIntensity, alpha: 1.0),
-    UIColor.whiteColor()
-    ].map { $0.CGColor }
-  let colorLocations : [CGFloat] = [0, clearLocations[0], (clearLocations[0] + clearLocations[1]) / 2.0, clearLocations[1], 1]
-  
-  let gradient = CGGradientCreateWithColors(CGColorSpaceCreateDeviceGray(), colors, colorLocations)
-  
-  let startPoint = CGPoint(x: 0, y: 0)
-  let endPoint = CGPoint(x: 0, y: size.height)
-  CGContextDrawLinearGradient(context, gradient, startPoint, endPoint, CGGradientDrawingOptions())
-  
-  let cgImage = CGBitmapContextCreateImage(context)
-  
-  return UIImage(CGImage: cgImage!)
+  return renderer.image { (context) in
+    let colors = [
+      .white,
+      UIColor(white: innerIntensity, alpha: 1.0),
+      .black,
+      UIColor(white: innerIntensity, alpha: 1.0),
+      .white
+      ].map { $0.cgColor }
+    let colorLocations : [CGFloat] = [0, clearLocations[0], (clearLocations[0] + clearLocations[1]) / 2.0, clearLocations[1], 1]
+    
+    let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceGray(), colors: colors, locations: colorLocations)
+    
+    let startPoint = CGPoint(x: 0, y: 0)
+    let endPoint = CGPoint(x: 0, y: size.height)
+    
+    context.cgContext.drawLinearGradient(gradient!, start: startPoint, end: endPoint, options: CGGradientDrawingOptions())
+  }
 }
 

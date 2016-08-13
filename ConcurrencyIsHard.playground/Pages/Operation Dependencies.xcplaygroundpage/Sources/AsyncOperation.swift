@@ -23,7 +23,7 @@
 
 import Foundation
 
-public class AsyncOperation: NSOperation {
+public class AsyncOperation: Operation {
   public enum State: String {
     case Ready, Executing, Finished
     
@@ -34,12 +34,12 @@ public class AsyncOperation: NSOperation {
   
   public var state = State.Ready {
     willSet {
-      willChangeValueForKey(newValue.keyPath)
-      willChangeValueForKey(state.keyPath)
+      willChangeValue(forKey: newValue.keyPath)
+      willChangeValue(forKey: state.keyPath)
     }
     didSet {
-      didChangeValueForKey(oldValue.keyPath)
-      didChangeValueForKey(state.keyPath)
+      didChangeValue(forKey: oldValue.keyPath)
+      didChangeValue(forKey: state.keyPath)
     }
   }
 }
@@ -47,24 +47,24 @@ public class AsyncOperation: NSOperation {
 
 extension AsyncOperation {
   // NSOperation Overrides
-  override public var ready: Bool {
-    return super.ready && state == .Ready
+  override public var isReady: Bool {
+    return super.isReady && state == .Ready
   }
   
-  override public var executing: Bool {
+  override public var isExecuting: Bool {
     return state == .Executing
   }
   
-  override public var finished: Bool {
+  override public var isFinished: Bool {
     return state == .Finished
   }
   
-  override public var asynchronous: Bool {
+  override public var isAsynchronous: Bool {
     return true
   }
   
   override public func start() {
-    if cancelled {
+    if isCancelled {
       state = .Finished
       return
     }

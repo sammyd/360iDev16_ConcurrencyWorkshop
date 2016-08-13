@@ -22,15 +22,15 @@
 
 import UIKit
 
-public func simulateNetworkImageLoad(named: String?) -> UIImage? {
+public func simulateNetworkImageLoad(_ named: String?) -> UIImage? {
   sleep(1)
-  guard let named = named else { return .None }
+  guard let named = named else { return .none }
   return UIImage(named: named)
 }
 
 
-public func simulateNetworkImageLoadAsync(named: String?, callback: (UIImage?) -> ()) {
-  NSOperationQueue().addOperationWithBlock {
+public func simulateNetworkImageLoadAsync(_ named: String?, callback: (UIImage?) -> ()) {
+  OperationQueue().addOperation {
     let image = simulateNetworkImageLoad(named)
     callback(image)
   }

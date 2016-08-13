@@ -30,7 +30,7 @@ extension UIImage {
       print("*** error: invalid size: \(size.width) x \(size.height). Both dimensions must be >= 1: \(self)")
       return nil
     }
-    if self.CGImage == nil {
+    if self.cgImage == nil {
       print("*** error: image must be backed by a CGImage: \(self)")
       return nil
     }

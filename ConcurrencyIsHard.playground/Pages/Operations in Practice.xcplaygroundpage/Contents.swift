@@ -23,7 +23,7 @@ tableView.rowHeight = 250
 //: `ImageProvider` is a class that is responsible for loading and processing an image. It creates the relevant operations, chains them together, pops them on a queue and then ensures that the output is passed back appropriately
 class ImageProvider {
   
-  let queue = NSOperationQueue()
+  let queue = OperationQueue()
   
   init(imageName: String, completion: (UIImage?) -> ()) {
     let loadOp = ImageLoadOperation()
@@ -46,42 +46,42 @@ class ImageProvider {
 //: `DataSource` is a class that represents the table's datasource and delegate
 class DataSource: NSObject {
   var imageNames = [String]()
-  var imageProviders = [NSIndexPath : ImageProvider]()
+  var imageProviders = [IndexPath : ImageProvider]()
 }
 
 //: Possibly the simplest implementation of `UITableViewDataSource`:
 extension DataSource: UITableViewDataSource {
-  func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+  func numberOfSections(in tableView: UITableView) -> Int {
     return 1
   }
   
-  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return imageNames.count
   }
   
-  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    return tableView.dequeueReusableCellWithIdentifier("ImageCell", forIndexPath: indexPath)
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    return tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
   }
 }
 
 extension DataSource: UITableViewDelegate {
-  func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+  func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
-      let provider = ImageProvider(imageName: imageNames[indexPath.row], completion: { (image) in
+      let provider = ImageProvider(imageName: imageNames[(indexPath as NSIndexPath).row], completion: { (image) in
         cell.transitionToImage(image)
-        self.imageProviders.removeValueForKey(indexPath)
+        self.imageProviders.removeValue(forKey: indexPath)
       })
       imageProviders[indexPath] = provider
     }
   }
   
-  func tableView(tableView: UITableView, didEndDisplayingCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+  func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
       cell.transitionToImage(.None)
     }
     if let provider = imageProviders[indexPath] {
       provider.cancel()
-      imageProviders.removeValueForKey(indexPath)
+      imageProviders.removeValue(forKey: indexPath)
     }
   }
 }

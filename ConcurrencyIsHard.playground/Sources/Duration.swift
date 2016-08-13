@@ -22,8 +22,8 @@
 
 import Foundation
 
-public func duration(block: () -> ()) -> NSTimeInterval {
-  let startTime = NSDate()
+public func duration(_ block: () -> ()) -> TimeInterval {
+  let startTime = Date()
   block()
-  return NSDate().timeIntervalSinceDate(startTime)
+  return Date().timeIntervalSince(startTime)
 }

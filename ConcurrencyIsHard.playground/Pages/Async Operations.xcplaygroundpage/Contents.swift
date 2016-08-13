@@ -24,7 +24,7 @@ import UIKit
 /*:
  The subclass adds a `state` property, and ensures that the appropriate KVO notifications are sent when the value is updated. This is integral to how `NSOperationQueue` manages its operations
  */
-class AsyncOperation: NSOperation {
+class AsyncOperation: Operation {
   enum State: String {
     case Ready, Executing, Finished
     
@@ -35,12 +35,12 @@ class AsyncOperation: NSOperation {
   
   var state = State.Ready {
     willSet {
-      willChangeValueForKey(newValue.keyPath)
-      willChangeValueForKey(state.keyPath)
+      willChangeValue(forKey: newValue.keyPath)
+      willChangeValue(forKey: state.keyPath)
     }
     didSet {
-      didChangeValueForKey(oldValue.keyPath)
-      didChangeValueForKey(state.keyPath)
+      didChangeValue(forKey: oldValue.keyPath)
+      didChangeValue(forKey: state.keyPath)
     }
   }
 }
@@ -54,24 +54,24 @@ class AsyncOperation: NSOperation {
  */
 extension AsyncOperation {
   // NSOperation Overrides
-  override var ready: Bool {
-    return super.ready && state == .Ready
+  override var isReady: Bool {
+    return super.isReady && state == .Ready
   }
   
-  override var executing: Bool {
+  override var isExecuting: Bool {
     return state == .Executing
   }
   
-  override var finished: Bool {
+  override var isFinished: Bool {
     return state == .Finished
   }
   
-  override var asynchronous: Bool {
+  override var isAsynchronous: Bool {
     return true
   }
   
   override func start() {
-    if cancelled {
+    if isCancelled {
       state = .Finished
       return
     }
@@ -103,7 +103,7 @@ class ImageLoadOperation: AsyncOperation {
 }
 
 //: This operation can then be used in the same way as any other `NSOperation`:
-let queue = NSOperationQueue()
+let queue = OperationQueue()
 
 let imageLoad = ImageLoadOperation()
 imageLoad.inputName = "train_dusk.jpg"
