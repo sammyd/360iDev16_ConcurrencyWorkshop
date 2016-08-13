@@ -1,10 +1,10 @@
 //: [Previous](@previous)
 /*:
- ## Chaining NSOperations
+ ## Chaining [NS]Operations
  
- Standalone operations are useful, but the true power from `NSOperation` comes from when you chain them together, building up a complex workflow from small parts.
+ Standalone operations are useful, but the true power from `Operation` comes from when you chain them together, building up a complex workflow from small parts.
  
- In order to achieve this, you need to be able to pass the result of one operation to the next in the chain. This can be achieved using the `dependencies` property of `NSOperation`.
+ In order to achieve this, you need to be able to pass the result of one operation to the next in the chain. This can be achieved using the `dependencies` property of `Operation`.
  
  In this demo, you have two operations - one the same filtering one you've been using, and the other one that simulates loading the source image over a network.
  
@@ -17,7 +17,7 @@
  - Apply a second filter to the image
  - Display the image
  \
- Each of these tasks could be modelled as an `NSOperation`, and the dependencies architecture would ensure that each operation will only begin once the appropriate data has been produced from a previous operation.
+ Each of these tasks could be modelled as an `Operation`, and the dependencies architecture would ensure that each operation will only begin once the appropriate data has been produced from a previous operation.
  
  This approach allows you to break down complex tasks into smaller, reusable operations which compose together nicely. It can lead to cleaner code. However, be warned that as with any asynchronous code, debugging can become more challenging.
  
@@ -32,10 +32,11 @@ class ImageLoadOperation: AsyncOperation {
   var outputImage: UIImage?
   
   override func main() {
-    simulateNetworkImageLoadAsync(self.inputName, callback: { (image) in
+    simulateAsyncNetworkLoadImage(named: self.inputName) {
+      [unowned self] (image) in
       self.outputImage = image
       self.state = .Finished
-    })
+    }
   }
 }
 
@@ -47,11 +48,11 @@ class TiltShiftOperation: Operation {
   override func main() {
     if let dependencyImageProvider = dependencies
       .filter({ $0 is FilterDataProvider})
-      .first as? FilterDataProvider
-      where inputImage == .none {
+      .first as? FilterDataProvider,
+      inputImage == .none {
       inputImage = dependencyImageProvider.outputImage
     }
-    outputImage = tiltShift(inputImage)
+    outputImage = tiltShift(image: inputImage)
   }
 }
 
