@@ -12,7 +12,7 @@ struct Future<T> {
   
   private let asyncOperation: AsyncOperation
   
-  func resolve(handler: FutureResultHandler) {
+  func resolve(_ handler: FutureResultHandler) {
     asyncOperation(handler)
   }
   
@@ -41,7 +41,7 @@ func loadData(_ callback: ([Int]) -> ()) {
 
 
 // Image load
-func loadImages(input: [Int], callback: ([String]) -> ()) {
+func loadImages(_ input: [Int], callback: ([String]) -> ()) {
   queue.async {
     usleep(500_000)
     callback(input.map { String(repeating: Character("🐠") , count: $0) })
@@ -50,7 +50,7 @@ func loadImages(input: [Int], callback: ([String]) -> ()) {
 
 
 // Image Processing
-func processImage(input: [String], callback: ([String]) -> ()) {
+func processImage(_ input: [String], callback: ([String]) -> ()) {
   queue.async {
     usleep(500_000)
     callback(input.map { $0.replacingOccurrences(of: "🐠🐠🐠🐠", with: "🐙") } )
@@ -60,8 +60,8 @@ func processImage(input: [String], callback: ([String]) -> ()) {
 /* Without promises */
 
 loadData { (data) in
-  loadImages(input: data, callback: { (images) in
-    processImage(input: images, callback: { (result) in
+  loadImages(data, callback: { (images) in
+    processImage(images, callback: { (result) in
       DispatchQueue.main.async {
         print("This is your processed data:")
         for value in result {

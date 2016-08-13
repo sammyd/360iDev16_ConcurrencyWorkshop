@@ -24,7 +24,7 @@ import UIKit
 import Accelerate
 
 extension UIImage {
-  public func applyBlurWithRadius(blurRadius: CGFloat, maskImage: UIImage? = nil) -> UIImage? {
+  public func applyBlur(radius: CGFloat, maskImage: UIImage? = nil) -> UIImage? {
     // Check pre-conditions.
     if (size.width < 1 || size.height < 1) {
       print("*** error: invalid size: \(size.width) x \(size.height). Both dimensions must be >= 1: \(self)")
@@ -34,24 +34,24 @@ extension UIImage {
       print("*** error: image must be backed by a CGImage: \(self)")
       return nil
     }
-    if maskImage != nil && maskImage!.CGImage == nil {
+    if maskImage != nil && maskImage!.cgImage == nil {
       print("*** error: maskImage must be backed by a CGImage: \(maskImage)")
       return nil
     }
     
     let __FLT_EPSILON__ = CGFloat(FLT_EPSILON)
-    let screenScale = UIScreen.mainScreen().scale
-    let imageRect = CGRect(origin: CGPointZero, size: size)
+    let screenScale = UIScreen.main.scale
+    let imageRect = CGRect(origin: .zero, size: size)
     var effectImage = self
     
-    let hasBlur = blurRadius > __FLT_EPSILON__
+    let hasBlur = radius > __FLT_EPSILON__
     
     if hasBlur {
       func createEffectBuffer(context: CGContext) -> vImage_Buffer {
-        let data = CGBitmapContextGetData(context)
-        let width = vImagePixelCount(CGBitmapContextGetWidth(context))
-        let height = vImagePixelCount(CGBitmapContextGetHeight(context))
-        let rowBytes = CGBitmapContextGetBytesPerRow(context)
+        let data = context.data
+        let width = vImagePixelCount(context.width)
+        let height = vImagePixelCount(context.height)
+        let rowBytes = context.bytesPerRow
         
         return vImage_Buffer(data: data, height: height, width: width, rowBytes: rowBytes)
       }
@@ -59,17 +59,18 @@ extension UIImage {
       UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
       let effectInContext = UIGraphicsGetCurrentContext()!
       
-      CGContextScaleCTM(effectInContext, 1.0, -1.0)
-      CGContextTranslateCTM(effectInContext, 0, -size.height)
-      CGContextDrawImage(effectInContext, imageRect, self.CGImage)
+      effectInContext.scaleBy(x: 1.0, y: -1.0)
+      effectInContext.translateBy(x: 0, y: -size.height)
+      effectInContext.draw(in: imageRect, image: self.cgImage!)
       
-      var effectInBuffer = createEffectBuffer(effectInContext)
+      var effectInBuffer = createEffectBuffer(context: effectInContext)
+      
       
       
       UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
       let effectOutContext = UIGraphicsGetCurrentContext()!
       
-      var effectOutBuffer = createEffectBuffer(effectOutContext)
+      var effectOutBuffer = createEffectBuffer(context: effectOutContext)
       
       
       if hasBlur {
@@ -86,8 +87,8 @@ extension UIImage {
         // ... if d is odd, use three box-blurs of size 'd', centered on the output pixel.
         //
         
-        let inputRadius = blurRadius * screenScale
-        var radius = UInt32(floor(inputRadius * 3.0 * CGFloat(sqrt(2 * M_PI)) / 4 + 0.5))
+        let inputRadius = radius * screenScale
+        var radius = UInt32(floor(Double(inputRadius * 0.75 * sqrt(2.0 * .pi) + 0.5)))
         if radius % 2 != 1 {
           radius += 1 // force radius to be odd so that the three box-blur methodology works.
         }
@@ -99,7 +100,7 @@ extension UIImage {
         vImageBoxConvolve_ARGB8888(&effectInBuffer, &effectOutBuffer, nil, 0, 0, radius, radius, nil, imageEdgeExtendFlags)
       }
       
-      effectImage = UIGraphicsGetImageFromCurrentImageContext()
+      effectImage = UIGraphicsGetImageFromCurrentImageContext()!
       
       UIGraphicsEndImageContext()
       UIGraphicsEndImageContext()
@@ -108,24 +109,24 @@ extension UIImage {
     // Set up output context.
     UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
     let outputContext = UIGraphicsGetCurrentContext()
-    CGContextScaleCTM(outputContext, 1.0, -1.0)
-    CGContextTranslateCTM(outputContext, 0, -size.height)
+    outputContext!.scaleBy(x: 1.0, y: -1.0)
+    outputContext!.translateBy(x: 0, y: -size.height)
     
     // Draw base image.
-    CGContextDrawImage(outputContext, imageRect, self.CGImage)
+    outputContext!.draw(in: imageRect, image: self.cgImage!)
     
     // Draw effect image.
     if hasBlur {
-      CGContextSaveGState(outputContext)
+      outputContext!.saveGState()
       if let image = maskImage {
         //CGContextClipToMask(outputContext, imageRect, image.CGImage);
-        let effectCGImage = CGImageCreateWithMask(effectImage.CGImage, image.CGImage)
+        let effectCGImage = effectImage.cgImage!.masking(image.cgImage!)
         if let effectCGImage = effectCGImage {
-          effectImage = UIImage(CGImage: effectCGImage)
+          effectImage = UIImage(cgImage: effectCGImage)
         }
       }
-      CGContextDrawImage(outputContext, imageRect, effectImage.CGImage)
-      CGContextRestoreGState(outputContext)
+      outputContext!.draw(in: imageRect, image: effectImage.cgImage!)
+      outputContext!.restoreGState()
     }
     
     // Output image is ready.

@@ -22,16 +22,16 @@
 
 import UIKit
 
-public func tiltShift(_ image: UIImage?) -> UIImage? {
+public func tiltShift(image: UIImage?) -> UIImage? {
   guard let image = image else { return .none }
   sleep(1)
-  let mask = topAndBottomGradient(image.size)
-  return image.applyBlurWithRadius(6, maskImage: mask)
+  let mask = topAndBottomGradient(size: image.size)
+  return image.applyBlur(radius: 6, maskImage: mask)
 }
 
-func tiltShiftAsync(_ image: UIImage?, callback: (UIImage?) ->()) {
+func tiltShiftAsync(image: UIImage?, callback: (UIImage?) ->()) {
   OperationQueue().addOperation {
-    let result = tiltShift(image)
+    let result = tiltShift(image: image)
     callback(result)
   }
 }
