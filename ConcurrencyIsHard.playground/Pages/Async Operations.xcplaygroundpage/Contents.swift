@@ -1,15 +1,15 @@
 //: [⬅ NSOperationQueue](@previous)
 /*:
- ## Wrapping Asynchronous Functions in NSOperation
+ ## Wrapping Asynchronous Functions in [NS]Operation
  
- The approach you've seen thus far to wrapping functionality in `NSOperation` only works provided you can guarantee that all the work has been completed when the `main()` method returns. This is not the case if you're wrapping asynchronous functions, which return immediately, and return their result at a later point.
+ The approach you've seen thus far to wrapping functionality in `Operation` only works provided you can guarantee that all the work has been completed when the `main()` method returns. This is not the case if you're wrapping asynchronous functions, which return immediately, and return their result at a later point.
  
- `NSOperation` has support for this, but requires that you manage the state manually. The following KVO properties must now be kept up-to-date with the operation status:
+ `Operation` has support for this, but requires that you manage the state manually. The following KVO properties must now be kept up-to-date with the operation status:
  - `ready`
  - `executing`
  - `finished`
  
- In order to make this task easier, `AsyncOperation` is a custom subclass of `NSOperation` that handles the state change automatically, and in a slightly more _Swift-like_ manner. This reduces wrapping an asynchronous function to the following:
+ In order to make this task easier, `AsyncOperation` is a custom subclass of `Operation` that handles the state change automatically, and in a slightly more _Swift-like_ manner. This reduces wrapping an asynchronous function to the following:
  
  1. Subclass `AsyncOperation`.
  2. Override `main()` and call your async function.
@@ -46,7 +46,7 @@ class AsyncOperation: Operation {
 }
 
 /*:
- Each of the state properties inherited from `NSOperation` are then overridden to defer to the new `state` property.
+ Each of the state properties inherited from `Operation` are then overridden to defer to the new `state` property.
  
  The `asynchronous` property must be set to `true` to tell the system that you'll be managing the state manually.
  
@@ -94,15 +94,16 @@ class ImageLoadOperation: AsyncOperation {
   
   override func main() {
     duration {
-      simulateNetworkImageLoadAsync(self.inputName, callback: { (image) in
+      simulateAsyncNetworkLoadImage(named: self.inputName) {
+        [unowned self] (image) in
         self.outputImage = image
         self.state = .Finished
-      })
+      }
     }
   }
 }
 
-//: This operation can then be used in the same way as any other `NSOperation`:
+//: This operation can then be used in the same way as any other `Operation`:
 let queue = OperationQueue()
 
 let imageLoad = ImageLoadOperation()
