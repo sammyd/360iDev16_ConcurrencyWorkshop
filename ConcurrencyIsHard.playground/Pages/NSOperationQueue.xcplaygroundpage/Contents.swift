@@ -1,11 +1,11 @@
 /*:
  [⬅ NSOperation](@previous)
  
- ## NSOperationQueue
+ ## [NS]OperationQueue
  
- There's not a lot of point of carefully wrapping up complex functionality in `NSOperation` object if you then have to call `start()` on each of them to actually begin execution.
+ There's not a lot of point of carefully wrapping up complex functionality in `Operation` objects if you then have to call `start()` on each of them to actually begin execution.
  
- Enter `NSOperationQueue`, which manages the execution of one or more `NSOperation` objects. Rather than having to handle threads directly, you instead pass your operations to a queue to be executed at the system's discretion. A queue can be configured to allow concurrent execution of the operations in the queue.
+ Enter `OperationQueue`, which manages the execution of one or more `Operation` objects. Rather than having to handle threads directly, you instead pass your operations to a queue to be executed at the system's discretion. A queue can be configured to allow concurrent execution of the operations in the queue.
  
  */
 
@@ -22,7 +22,7 @@ class TiltShiftOperation: Operation {
   var outputImage: UIImage?
   
   override func main() {
-    outputImage = tiltShift(inputImage)
+    outputImage = tiltShift(image: inputImage)
   }
 }
 
