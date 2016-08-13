@@ -8,6 +8,6 @@
         <page name='GCD'/>
         <page name='Dispatch Groups'/>
         <page name='Dispatch Barriers'/>
-        <page name='Promises'/>
+        <page name='Futures'/>
     </pages>
 </playground>
