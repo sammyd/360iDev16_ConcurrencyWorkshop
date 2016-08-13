@@ -4,6 +4,7 @@
         <page name='NSOperation'/>
         <page name='NSOperationQueue'/>
         <page name='Async Operations'/>
+        <page name='Operation Dependencies'/>
         <page name='Operations in Practice'/>
         <page name='GCD'/>
         <page name='Dispatch Groups'/>
