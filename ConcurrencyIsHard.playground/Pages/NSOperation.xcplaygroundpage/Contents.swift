@@ -1,43 +1,44 @@
 /*:
- # Concurrency in iOS
- ## iOSCon 2016
+ # iOS Concurrency Workshop "Concurrency is Hard"
+ ## 360|iDev 2016
  ## Sam Davies · [@iwantmyrealname](https://twitter.com/iwantmyrealname)
  
- This playground forms the basis of a talk presented at [iOSCon 2016](https://skillsmatter.com/conferences/7598-ioscon-2016-the-conference-for-ios-and-swift-developers).
+ This playground forms the basis of a workshop presented at 360|iDev 2016.
  
  The following represents the pages contained within this playground
  
  - [NSOperation](NSOperation)
  - [NSOperationQueue](NSOperationQueue)
- - [Wrapping Aysnc Functions in NSOperation](NSOperation%20Async)
- - [Inter-Operation Dependencies](NSOperation%20Dependencies)
- - [NSOperation in Practice](NSOperation%20in%20Practice)
- - [Grand Central Dispatch](Grand%20Central%20Dispatch)
- - [GCD Groups](GCD%20Groups)
- - [GCD Barrier](GCD%20Barrier)
+ - [Wrapping Aysnc Functions in NSOperation](Async%20Operations)
+ - [Inter-Operation Dependencies](Operation%20Dependencies)
+ - [Operations in Practice](Operations%20in%20Practice)
+ - [Grand Central Dispatch](GCD)
+ - [Dispatch Groups](Dispatch%20Groups)
+ - [Dispatch Barriers](Dispatch%20Barriers)
+ - [Futures](Futures)
  
  ---
  
- ## NSOperation
+ ## [NS]Operation
  
- `NSOperation` is a high-level abstraction that represents _"a unit of work"_. You can use this to wrap some sort of functionality, and then pass this off to be executed concurrently.
+ `Operation` is a high-level abstraction that represents _"a unit of work"_. You can use this to wrap some sort of functionality, and then pass this off to be executed concurrently.
  */
 
 import UIKit
 
-//: `tiltShift()` is a function that applies a tilt-shift-like filter to a `UIImage`, and as such it's rather (artificially) slow.
+//: `tiltShift(image:)` is a function that applies a tilt-shift-like filter to a `UIImage`, and as such it's rather (artificially) slow.
 
 let image = UIImage(named: "dark_road_small.jpg")
 duration {
-  let result = tiltShift(image)
+  let result = tiltShift(image: image)
 }
 
 var outputImage: UIImage?
 
-//: You can use the `NSBlockOperation` subclass of `NSOperation` to easily wrap some functionality.
+//: You can use the `BlockOperation` subclass of `Operation` to easily wrap some functionality.
 
 let myFirstOperation = BlockOperation {
-  outputImage = tiltShift(image)
+  outputImage = tiltShift(image: image)
 }
 
 //: You can then execute this operation with the `start()` method:
@@ -48,7 +49,7 @@ outputImage
 
 
 /*:
- Although `NSBlockOperation` has a very low bar for entry, it's not especially flexible. It's more usual to subclass `NSOperation` directly, and specialise it to particular functionality.
+ Although `BlockOperation` has a very low bar for entry, it's not especially flexible. It's more usual to subclass `Operation` directly, and specialise it to particular functionality.
  
  When subclassing, create properties for input and output objects, and then override the `main()` method to perform the work.
  */
@@ -57,7 +58,7 @@ class TiltShiftOperation: Operation {
   var outputImage: UIImage?
   
   override func main() {
-    outputImage = tiltShift(inputImage)
+    outputImage = tiltShift(image: inputImage)
   }
 }
 
