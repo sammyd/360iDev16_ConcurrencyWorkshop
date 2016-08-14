@@ -39,7 +39,26 @@ PlaygroundPage.current.needsIndefiniteExecution = true
  first future and a new callback.
  */
 
-// TODO
+struct Future<T> {
+  typealias FutureResultHandler = (T) -> ()
+  typealias AsyncOperation = (FutureResultHandler) -> ()
+  
+  private let asyncOperation: AsyncOperation
+  
+  func resolve(_ handler: FutureResultHandler) {
+    asyncOperation(handler)
+  }
+  
+  func then<U>(_ next: (input: T, callback: (U) -> ()) -> ()) -> Future<U> {
+    return Future<U> { (resultHandler) in
+      self.resolve { firstResult in
+        next(input: firstResult) { secondResult in
+          resultHandler(secondResult)
+        }
+      }
+    }
+  }
+}
 
 
 let queue = DispatchQueue(label: "com.razeware.sams-queue")
@@ -87,7 +106,20 @@ func secondaryProcessing(_ input: [String], callback: ([String]) -> ()) {
  _pyramid-of-doom_.
  */
 
-// TODO
+loadData { (data) in
+  loadImages(data, callback: { (images) in
+    processImages(images, callback: { (result) in
+      secondaryProcessing(result, callback: { (output) in
+        DispatchQueue.main.async {
+          print("This is your processed data:")
+          for value in output {
+            print(value)
+          }
+        }
+      })
+    })
+  })
+}
 
 
 /*:
@@ -96,7 +128,17 @@ func secondaryProcessing(_ input: [String], callback: ([String]) -> ()) {
  A lot more readable, a fluent API clearly defining the flow of operations
  */
 
-// TODO
+Future(asyncOperation: loadData)
+  .then(loadImages)
+  .then(processImages)
+  .then(secondaryProcessing)
+  .resolve { results in
+    DispatchQueue.main.async {
+      print(results)
+      PlaygroundPage.current.finishExecution()
+    }
+}
+
 
 /*:
  -note:
