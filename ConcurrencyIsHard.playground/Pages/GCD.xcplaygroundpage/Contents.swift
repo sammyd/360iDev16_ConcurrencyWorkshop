@@ -1,12 +1,12 @@
 //: [⬅ NSOperation in Practice](@previous)
 /*:
  ## GCD Queues
- NSOperation queues are built on top of a technology called `libdispatch`, or *Grand Central Dispatch*. This is an advanced open-source technology that underpins concurrent programming on Apple technologies. It uses the now-familiar queuing model to greatly simplify concurrent programming, but is a C-level interface. This can make it slightly more challenging to work with.
+ [NS]Operation queues are built on top of a technology called `libdispatch`, or *Grand Central Dispatch*. This is an advanced open-source technology that underpins concurrent programming on Apple technologies. It uses the now-familiar queuing model to greatly simplify concurrent programming, up until recently via a C-level interface. However, Swift 3 has greatly improved the GCD API, so it's no longer nearly as challenging.
  */
 import UIKit
-import XCPlayground
+import PlaygroundSupport
 
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 /*:
  ### Using a Global Queue
  iOS has some global queues, where every task eventually ends up being executed. You can use these directly. You need to use the main queue for UI updates.
@@ -16,18 +16,17 @@ let mainQueue = DispatchQueue.main
 
 //: ### Creating your own Queue
 //: Creating your own queues allow you to specify a label, which is super-useful for debugging.
-//: You can specify whether the queue is serieal (default) or concurrent (see later).
+//: You can specify whether the queue is serial (default) or concurrent (see later).
 //: You can also specify the QOS or priority (here be dragons)
-let attr = dispatch_queue_attr_make_with_qos_class(DispatchQueue.Attributes.serial, DispatchQoS.QoSClass.userInitiated, 0)
-let workerQueue = DispatchQueue(label: "com.raywenderlich.worker", qos: attr)
-
+let workerQueue = DispatchQueue(label: "com.raywenderlich.worker", qos: .userInitiated)
 
 //: ### Getting the queue name
 //: You can't get hold of the "current queue", but you can obtain its name - useful for debugging
-func currentQueueName() -> String? {
-  let label = DISPATCH_CURRENT_QUEUE_LABEL.label
-  return String(CString: label, encoding: String.Encoding.utf8)
+func currentQueueName() -> String {
+  let label = __dispatch_queue_get_label(.none)
+  return String(cString: label)
 }
+
 
 let currentQueue = currentQueueName()
 print(currentQueue)
@@ -70,7 +69,7 @@ workerQueue.async(execute: doComplexWork)
 
 sleep(5)
 
-let concurrentQueue = DispatchQueue(label: "com.raywenderlich.concurrent", qos: DispatchQueue.Attributes.concurrent)
+let concurrentQueue = DispatchQueue(label: "com.raywenderlich.concurrent", qos: .userInitiated, attributes: .concurrent)
 
 print("\n=== Starting concurrent ===")
 concurrentQueue.async(execute: doComplexWork)
@@ -80,7 +79,7 @@ concurrentQueue.async(execute: doComplexWork)
 
 sleep(5)
 
-XCPlaygroundPage.currentPage.finishExecution()
+PlaygroundPage.current.finishExecution()
 
 
 //: [➡ GCD Groups](@next)
