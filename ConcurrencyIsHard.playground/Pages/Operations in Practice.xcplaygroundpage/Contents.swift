@@ -67,10 +67,10 @@ extension DataSource: UITableViewDataSource {
 extension DataSource: UITableViewDelegate {
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
-      let provider = ImageProvider(imageName: imageNames[(indexPath as NSIndexPath).row], completion: { (image) in
+      let provider = ImageProvider(imageName: imageNames[indexPath.row]){ (image) in
         cell.transitionToImage(image: image)
         self.imageProviders.removeValue(forKey: indexPath)
-      })
+      }
       imageProviders[indexPath] = provider
     }
   }
