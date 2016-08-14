@@ -1,22 +1,22 @@
 //: [⬅ Chaining NSOperations](@previous)
 /*:
- ## NSOperations in Practice
+ ## [NS]Operations in Practice
  
- You've seen how powerful `NSOperation` is, but not really seen it fix a real-world problem.
+ You've seen how powerful `Operation` is, but not really seen it fix a real-world problem.
  
- This playground page demonstrates how you can use `NSOperation` to load and filter images for display in a table view, whilst maintaining the smooth scroll effect you expect from table views.
+ This playground page demonstrates how you can use `Operation` to load and filter images for display in a table view, whilst maintaining the smooth scroll effect you expect from table views.
  
  This is a common problem, and comes from the fact that if you attempt expensive operations synchronously, you'll block the main queue (thread). Since this is used for rendering the UI, you cause your app to become unresponsive - temporarily freezing.
  
- The solution is to move data loading off into the background, which can be achieved easily with `NSOperation`.
+ The solution is to move data loading off into the background, which can be achieved easily with `Operation`.
  
  */
 import UIKit
-import XCPlayground
+import PlaygroundSupport
 
 let tableView = UITableView(frame: CGRect(x: 0, y: 0, width: 320, height: 720))
-tableView.registerClass(ImageCell.self, forCellReuseIdentifier: "ImageCell")
-XCPlaygroundPage.currentPage.liveView = tableView
+tableView.register(ImageCell.self, forCellReuseIdentifier: "ImageCell")
+PlaygroundPage.current.liveView = tableView
 tableView.rowHeight = 250
 
 
@@ -68,7 +68,7 @@ extension DataSource: UITableViewDelegate {
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
       let provider = ImageProvider(imageName: imageNames[(indexPath as NSIndexPath).row], completion: { (image) in
-        cell.transitionToImage(image)
+        cell.transitionToImage(image: image)
         self.imageProviders.removeValue(forKey: indexPath)
       })
       imageProviders[indexPath] = provider
@@ -77,7 +77,7 @@ extension DataSource: UITableViewDelegate {
   
   func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
-      cell.transitionToImage(.None)
+      cell.transitionToImage(image: .none)
     }
     if let provider = imageProviders[indexPath] {
       provider.cancel()
