@@ -1,9 +1,9 @@
 //: [⬅ GCD Groups](@previous)
 
 import Foundation
-import XCPlayground
+import PlaygroundSupport
 
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 
 //: ## GCD Barriers
 //: When you're using asynchronous calls you need to conside thread safety.
@@ -18,7 +18,7 @@ nameChangingPerson.name
 
 //: What happens if you try and use the `changeName(firstName:lastName:)` simulataneously from a concurrent queue?
 
-let workerQueue = DispatchQueue(label: "com.raywenderlich.worker", qos: DispatchQueue.Attributes.concurrent)
+let workerQueue = DispatchQueue(label: "com.raywenderlich.worker", attributes: .concurrent)
 let nameChangeGroup = DispatchGroup()
 
 let nameList = [("Charlie", "Cheesecake"), ("Delia", "Dingle"), ("Eva", "Evershed"), ("Freddie", "Frost"), ("Gina", "Gregory")]
@@ -32,10 +32,10 @@ for name in nameList {
 
 nameChangeGroup.notify(queue: DispatchQueue.main) {
   print("Final name: \(nameChangingPerson.name)")
-  //XCPlaygroundPage.currentPage.finishExecution()
+  //PlaygroundPage.current.finishExecution()
 }
 
-nameChangeGroup.wait(timeout: DispatchTime.distantFuture)
+nameChangeGroup.wait()
 
 //: __Result:__ `nameChangingPerson` has been left in an inconsistent state.
 
@@ -45,12 +45,12 @@ nameChangeGroup.wait(timeout: DispatchTime.distantFuture)
 
 class ThreadSafePerson: Person {
   
-  let isolationQueue = DispatchQueue(label: "com.raywenderlich.person.isolation", qos: DispatchQueue.Attributes.concurrent)
+  let isolationQueue = DispatchQueue(label: "com.raywenderlich.person.isolation", attributes: .concurrent)
   
   override func changeName(firstName: String, lastName: String) {
-    isolationQueue.async(flags: .barrier, execute: {
+    isolationQueue.async(flags: .barrier) {
       super.changeName(firstName: firstName, lastName: lastName)
-    }) 
+    }
   }
   
   override var name: String {
@@ -72,23 +72,13 @@ let threadSafePerson = ThreadSafePerson(firstName: "Anna", lastName: "Adams")
 for name in nameList {
   workerQueue.async(group: threadSafeNameGroup) {
     threadSafePerson.changeName(firstName: name.0, lastName: name.1)
+    usleep(100_000)
     print("Current threadsafe name: \(threadSafePerson.name)")
   }
 }
 
 threadSafeNameGroup.notify(queue: DispatchQueue.main) {
   print("Final threadsafe name: \(threadSafePerson.name)")
-  XCPlaygroundPage.currentPage.finishExecution()
 }
 
-/*:
- ---
- Hope you enjoyed this playground introduction to concurrency on iOS. Any questions please feel free to shout at me on twitter — I'm [@iwantmyrealname](https://twitter.com/iwantmyrealname).
- 
- —sam
- 
- 
- ![Razeware](razeware_64.png)
- 
- © Razeware LLC, 2016
- */
+//: [➡ Futures](@next)

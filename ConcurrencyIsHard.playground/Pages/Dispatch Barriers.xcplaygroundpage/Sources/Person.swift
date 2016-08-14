@@ -33,9 +33,9 @@ public class Person {
   }
   
   public func changeName(firstName: String, lastName: String) {
-    randomDelay(0.2)
+    randomDelay(maxDuration:  0.2)
     self.firstName = firstName
-    randomDelay(1)
+    randomDelay(maxDuration:  1)
     self.lastName = lastName
   }
   
