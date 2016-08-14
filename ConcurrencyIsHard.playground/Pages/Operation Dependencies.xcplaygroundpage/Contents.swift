@@ -23,6 +23,7 @@
  
  - note:
  More than one operation can depend on another, so you can actually build a dependency graph - you're not limited to a simple chain. The great part of this is that you don't have to manage the scheduling of any of these - the operation queue handles it all for you.
+ 
  */
 import UIKit
 
@@ -32,11 +33,7 @@ class ImageLoadOperation: AsyncOperation {
   var outputImage: UIImage?
   
   override func main() {
-    simulateAsyncNetworkLoadImage(named: self.inputName) {
-      [unowned self] (image) in
-      self.outputImage = image
-      self.state = .Finished
-    }
+    // TODO
   }
 }
 
@@ -46,25 +43,13 @@ class TiltShiftOperation: Operation {
   var outputImage: UIImage?
   
   override func main() {
-    if let dependencyImageProvider = dependencies
-      .filter({ $0 is FilterDataProvider})
-      .first as? FilterDataProvider,
-      inputImage == .none {
-      inputImage = dependencyImageProvider.outputImage
-    }
-    outputImage = tiltShift(image: inputImage)
+    // TODO
   }
 }
 
 
 //: Rather than coding directly to concrete implementations, define a protocol that represents _"an object that can provide data to an image filter"_. This makes the code that searches dependencies far less brittle.
-protocol FilterDataProvider {
-  var outputImage: UIImage? { get }
-}
-
-extension ImageLoadOperation: FilterDataProvider {
-  
-}
+// TODO
 
 
 /*:
@@ -73,31 +58,21 @@ extension ImageLoadOperation: FilterDataProvider {
  - important:
  Heed all the usual warnings about custom operators. This is a situation where they can offer genuine clarity, but that isn't often the case.
  */
-infix operator |> { associativity left precedence 150 }
-func |>(lhs: Operation, rhs: Operation) -> Operation {
-  rhs.addDependency(lhs)
-  return rhs
-}
+// TODO
 
 
 //: Create the relevant operations
-let imageLoad = ImageLoadOperation()
-let filter = TiltShiftOperation()
+// TODO
 
 //: Set the input parameter on the image loading operation:
-imageLoad.inputName = "train_day.jpg"
+// TODO
 
 //: And set the dependency chain
-imageLoad |> filter
+// TODO
 
 //: Add both operations to the operation queue
 let queue = OperationQueue()
-duration {
-  queue.addOperations([imageLoad, filter], waitUntilFinished: true)
-}
-
-
-filter.outputImage
+// TODO
 
 
 //: [➡ NSOperation in Practice](@next)

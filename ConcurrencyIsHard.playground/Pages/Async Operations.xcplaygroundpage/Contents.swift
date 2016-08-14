@@ -25,24 +25,7 @@ import UIKit
  The subclass adds a `state` property, and ensures that the appropriate KVO notifications are sent when the value is updated. This is integral to how `NSOperationQueue` manages its operations
  */
 class AsyncOperation: Operation {
-  enum State: String {
-    case Ready, Executing, Finished
-    
-    private var keyPath: String {
-      return "is" + rawValue
-    }
-  }
-  
-  var state = State.Ready {
-    willSet {
-      willChangeValue(forKey: newValue.keyPath)
-      willChangeValue(forKey: state.keyPath)
-    }
-    didSet {
-      didChangeValue(forKey: oldValue.keyPath)
-      didChangeValue(forKey: state.keyPath)
-    }
-  }
+  // TODO
 }
 
 /*:
@@ -52,69 +35,17 @@ class AsyncOperation: Operation {
  
  You also override `start()` and `cancel()` to wire in the new `state` property.
  */
-extension AsyncOperation {
-  // NSOperation Overrides
-  override var isReady: Bool {
-    return super.isReady && state == .Ready
-  }
-  
-  override var isExecuting: Bool {
-    return state == .Executing
-  }
-  
-  override var isFinished: Bool {
-    return state == .Finished
-  }
-  
-  override var isAsynchronous: Bool {
-    return true
-  }
-  
-  override func start() {
-    if isCancelled {
-      state = .Finished
-      return
-    }
-    main()
-    state = .Executing
-  }
-  
-  override func cancel() {
-    state = .Finished
-  }
-}
+// TODO
 
 
 /*:
  Wrapping an asynchronous function then becomes as simple as overriding the `main()` function, remembering to set the `state` parameter on completion:
  */
-class ImageLoadOperation: AsyncOperation {
-  var inputName: String?
-  var outputImage: UIImage?
-  
-  override func main() {
-    duration {
-      simulateAsyncNetworkLoadImage(named: self.inputName) {
-        [unowned self] (image) in
-        self.outputImage = image
-        self.state = .Finished
-      }
-    }
-  }
-}
+// TODO
 
 //: This operation can then be used in the same way as any other `Operation`:
 let queue = OperationQueue()
 
-let imageLoad = ImageLoadOperation()
-imageLoad.inputName = "train_dusk.jpg"
-
-queue.addOperation(imageLoad)
-
-duration {
-  queue.waitUntilAllOperationsAreFinished()
-}
-
-imageLoad.outputImage
+// TODO
 
 //: [➡ NSOperation Dependencies](@next)

@@ -14,8 +14,8 @@ import UIKit
 
 //: Using the same tilt-shift operation, this time you've got a set of images rather than just one:
 let imageNames = ["dark_road_small", "train_day", "train_dusk", "train_night"]
-let images = imageNames.flatMap { UIImage(named: "\($0).jpg") }
-images
+
+// TODO
 
 class TiltShiftOperation: Operation {
   var inputImage: UIImage?
@@ -28,9 +28,7 @@ class TiltShiftOperation: Operation {
 
 
 //: Creating a queue is simple - using the default constructor:
-let queue = OperationQueue()
-
-var operations = [TiltShiftOperation]()
+// TODO
 
 /*:
  Use the `addOperation()` method on `NSOperationQueue` to add each operation to the queue.
@@ -41,15 +39,7 @@ var operations = [TiltShiftOperation]()
  You can see that here, with the result of the `duration` function:
  
  */
-duration {
-  for image in images {
-    let op = TiltShiftOperation()
-    op.inputImage = image
-    operations += [op]
-    
-    queue.addOperation(op)
-  }
-}
+// TODO
 
 /*:
  * experiment:
@@ -58,15 +48,9 @@ duration {
  \
  Try changing the value of this property below to see how it affects the time it takes for the queue to finish processing all operations
  */
-queue.maxConcurrentOperationCount = 2
-
-duration {
-  queue.waitUntilAllOperationsAreFinished()
-}
+// TODO
 
 
 //: Check that all operations have filtered the image as expected
-let output = operations.flatMap { $0.outputImage }
-output
-
+// TODO
 //: [➡ NSOperation Async](@next)

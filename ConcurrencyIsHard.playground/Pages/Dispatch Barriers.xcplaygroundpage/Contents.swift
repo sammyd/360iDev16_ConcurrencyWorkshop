@@ -13,30 +13,15 @@ let nameChangingPerson = Person(firstName: "Alison", lastName: "Anderson")
 
 //: The `Person` class includes a method to change names:
 
-nameChangingPerson.changeName(firstName: "Brian", lastName: "Biggles")
-nameChangingPerson.name
+// TODO
 
 //: What happens if you try and use the `changeName(firstName:lastName:)` simulataneously from a concurrent queue?
 
-let workerQueue = DispatchQueue(label: "com.raywenderlich.worker", attributes: .concurrent)
-let nameChangeGroup = DispatchGroup()
+// TODO
 
 let nameList = [("Charlie", "Cheesecake"), ("Delia", "Dingle"), ("Eva", "Evershed"), ("Freddie", "Frost"), ("Gina", "Gregory")]
 
-for (idx, name) in nameList.enumerated() {
-  workerQueue.async(group: nameChangeGroup) {
-    usleep(UInt32(10_000 * idx))
-    nameChangingPerson.changeName(firstName: name.0, lastName: name.1)
-    print("Current Name: \(nameChangingPerson.name)")
-  }
-}
-
-nameChangeGroup.notify(queue: DispatchQueue.main) {
-  print("Final name: \(nameChangingPerson.name)")
-  //PlaygroundPage.current.finishExecution()
-}
-
-nameChangeGroup.wait()
+// TODO
 
 //: __Result:__ `nameChangingPerson` has been left in an inconsistent state.
 
@@ -44,51 +29,12 @@ nameChangeGroup.wait()
 //: ### Dispatch Barrier
 //: A barrier allows you add a task to a concurrent queue that will be run in a serial fashion. i.e. it will wait for the currently queued tasks to complete, and prevent any new ones starting.
 
-class ThreadSafePerson: Person {
-  
-  let isolationQueue = DispatchQueue(label: "com.raywenderlich.person.isolation", attributes: .concurrent)
-  
-  override func changeName(firstName: String, lastName: String) {
-    // https://bugs.swift.org/browse/SR-2246
-    /*
-    isolationQueue.async(flags: .barrier) {
-      print("START \(firstName) \(lastName)")
-      super.changeName(firstName: firstName, lastName: lastName)
-      print("END \(firstName) \(lastName)")
-    }
-    */
-    let nameChangeWorkItem = DispatchWorkItem(flags: .barrier) {
-      super.changeName(firstName: firstName, lastName: lastName)
-    }
-    
-    isolationQueue.async(execute: nameChangeWorkItem)
-  }
-  
-  override var name: String {
-    return isolationQueue.sync {
-      return super.name
-    }
-  }
-}
+// TODO
 
 
 print("\n=== Threadsafe ===")
 
 let threadSafeNameGroup = DispatchGroup()
 
-let threadSafePerson = ThreadSafePerson(firstName: "Anna", lastName: "Adams")
-
-for (idx, name) in nameList.enumerated() {
-  workerQueue.async(group: threadSafeNameGroup) {
-    usleep(UInt32(10_000 * idx))
-    threadSafePerson.changeName(firstName: name.0, lastName: name.1)
-    print("Current threadsafe name: \(threadSafePerson.name)")
-  }
-}
-
-threadSafeNameGroup.notify(queue: DispatchQueue.main) {
-  print("Final threadsafe name: \(threadSafePerson.name)")
-  PlaygroundPage.current.finishExecution()
-}
-
+// TODO
 //: [➡ Futures](@next)

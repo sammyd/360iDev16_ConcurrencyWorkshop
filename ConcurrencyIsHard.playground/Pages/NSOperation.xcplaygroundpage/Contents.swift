@@ -29,20 +29,16 @@ import UIKit
 //: `tiltShift(image:)` is a function that applies a tilt-shift-like filter to a `UIImage`, and as such it's rather (artificially) slow.
 
 let image = UIImage(named: "dark_road_small.jpg")
-duration {
-  let result = tiltShift(image: image)
-}
+// TODO
 
 var outputImage: UIImage?
 
 //: You can use the `BlockOperation` subclass of `Operation` to easily wrap some functionality.
 
-let myFirstOperation = BlockOperation {
-  outputImage = tiltShift(image: image)
-}
+// TODO
 
 //: You can then execute this operation with the `start()` method:
-myFirstOperation.start()
+// TODO
 
 
 outputImage
@@ -53,17 +49,7 @@ outputImage
  
  When subclassing, create properties for input and output objects, and then override the `main()` method to perform the work.
  */
-class TiltShiftOperation: Operation {
-  var inputImage: UIImage?
-  var outputImage: UIImage?
-  
-  override func main() {
-    outputImage = tiltShift(image: inputImage)
-  }
-}
-
-let mySecondOperation = TiltShiftOperation()
-mySecondOperation.inputImage = image
+// TODO
 
 
 /*:
@@ -73,10 +59,7 @@ mySecondOperation.inputImage = image
  Calling `start()` might seem a little strange, but don't worry - you won't be doing it for long...
  
  */
-mySecondOperation.start()
-
-mySecondOperation.outputImage
-
+// TODO
 
 //: [➡NSOperationQueue](NSOperationQueue)
 
