@@ -119,7 +119,6 @@ extension UIImage {
     if hasBlur {
       outputContext!.saveGState()
       if let image = maskImage {
-        //CGContextClipToMask(outputContext, imageRect, image.CGImage);
         let effectCGImage = effectImage.cgImage!.masking(image.cgImage!)
         if let effectCGImage = effectCGImage {
           effectImage = UIImage(cgImage: effectCGImage)
