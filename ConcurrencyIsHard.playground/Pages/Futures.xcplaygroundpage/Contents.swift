@@ -61,9 +61,12 @@ struct Future<T> {
 }
 
 
+
 let queue = DispatchQueue(label: "com.razeware.sams-queue")
 
-/* Sample Async Operations */
+/*:
+ ### Sample Async Operations
+ */
 // Data load
 func loadData(_ callback: ([Int]) -> ()) {
   queue.async {
@@ -83,10 +86,17 @@ func loadImages(_ input: [Int], callback: ([String]) -> ()) {
 
 
 // Image Processing
-func processImage(_ input: [String], callback: ([String]) -> ()) {
+func processImages(_ input: [String], callback: ([String]) -> ()) {
   queue.async {
     usleep(500_000)
     callback(input.map { $0.replacingOccurrences(of: "🐠🐠🐠🐠", with: "🐙") } )
+  }
+}
+
+func secondaryProcessing(_ input: [String], callback: ([String]) -> ()) {
+  queue.async {
+    usleep(1_000_000)
+    callback(input.map { return "💄" + $0 + "🎏"} )
   }
 }
 
@@ -99,13 +109,15 @@ func processImage(_ input: [String], callback: ([String]) -> ()) {
 
 loadData { (data) in
   loadImages(data, callback: { (images) in
-    processImage(images, callback: { (result) in
-      DispatchQueue.main.async {
-        print("This is your processed data:")
-        for value in result {
-          print(value)
+    processImages(images, callback: { (result) in
+      secondaryProcessing(result, callback: { (output) in
+        DispatchQueue.main.async {
+          print("This is your processed data:")
+          for value in output {
+            print(value)
+          }
         }
-      }
+      })
     })
   })
 }
@@ -118,7 +130,8 @@ loadData { (data) in
  */
 Future(asyncOperation: loadData)
   .then(loadImages)
-  .then(processImage)
+  .then(processImages)
+  .then(secondaryProcessing)
   .resolve { results in
     DispatchQueue.main.async {
       print(results)
