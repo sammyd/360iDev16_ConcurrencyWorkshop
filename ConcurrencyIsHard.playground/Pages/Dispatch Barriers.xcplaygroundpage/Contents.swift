@@ -6,7 +6,7 @@ import PlaygroundSupport
 PlaygroundPage.current.needsIndefiniteExecution = true
 
 //: ## GCD Barriers
-//: When you're using asynchronous calls you need to conside thread safety.
+//: When you're using asynchronous calls you need to consider thread safety.
 //: Consider the following object:
 
 let nameChangingPerson = Person(firstName: "Alison", lastName: "Anderson")
@@ -23,8 +23,9 @@ let nameChangeGroup = DispatchGroup()
 
 let nameList = [("Charlie", "Cheesecake"), ("Delia", "Dingle"), ("Eva", "Evershed"), ("Freddie", "Frost"), ("Gina", "Gregory")]
 
-for name in nameList {
+for (idx, name) in nameList.enumerated() {
   workerQueue.async(group: nameChangeGroup) {
+    usleep(UInt32(10_000 * idx))
     nameChangingPerson.changeName(firstName: name.0, lastName: name.1)
     print("Current Name: \(nameChangingPerson.name)")
   }
@@ -48,17 +49,25 @@ class ThreadSafePerson: Person {
   let isolationQueue = DispatchQueue(label: "com.raywenderlich.person.isolation", attributes: .concurrent)
   
   override func changeName(firstName: String, lastName: String) {
+    // https://bugs.swift.org/browse/SR-2246
+    /*
     isolationQueue.async(flags: .barrier) {
+      print("START \(firstName) \(lastName)")
+      super.changeName(firstName: firstName, lastName: lastName)
+      print("END \(firstName) \(lastName)")
+    }
+    */
+    let nameChangeWorkItem = DispatchWorkItem(flags: .barrier) {
       super.changeName(firstName: firstName, lastName: lastName)
     }
+    
+    isolationQueue.async(execute: nameChangeWorkItem)
   }
   
   override var name: String {
-    var result = ""
-    isolationQueue.sync {
-      result = super.name
+    return isolationQueue.sync {
+      return super.name
     }
-    return result
   }
 }
 
@@ -69,16 +78,17 @@ let threadSafeNameGroup = DispatchGroup()
 
 let threadSafePerson = ThreadSafePerson(firstName: "Anna", lastName: "Adams")
 
-for name in nameList {
+for (idx, name) in nameList.enumerated() {
   workerQueue.async(group: threadSafeNameGroup) {
+    usleep(UInt32(10_000 * idx))
     threadSafePerson.changeName(firstName: name.0, lastName: name.1)
-    usleep(100_000)
     print("Current threadsafe name: \(threadSafePerson.name)")
   }
 }
 
 threadSafeNameGroup.notify(queue: DispatchQueue.main) {
   print("Final threadsafe name: \(threadSafePerson.name)")
+  PlaygroundPage.current.finishExecution()
 }
 
 //: [➡ Futures](@next)
