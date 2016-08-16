@@ -33,7 +33,11 @@ class ImageLoadOperation: AsyncOperation {
   var outputImage: UIImage?
   
   override func main() {
-    // TODO
+    simulateAsyncNetworkLoadImage(named: self.inputName) {
+      [unowned self] (image) in
+      self.outputImage = image
+      self.state = .Finished
+    }
   }
 }
 
@@ -43,13 +47,25 @@ class TiltShiftOperation: Operation {
   var outputImage: UIImage?
   
   override func main() {
-    // TODO
+    if let dependencyImageProvider = dependencies
+      .filter({ $0 is FilterDataProvider})
+      .first as? FilterDataProvider,
+      inputImage == .none {
+      inputImage = dependencyImageProvider.outputImage
+    }
+    outputImage = tiltShift(image: inputImage)
   }
 }
 
 
 //: Rather than coding directly to concrete implementations, define a protocol that represents _"an object that can provide data to an image filter"_. This makes the code that searches dependencies far less brittle.
-// TODO
+protocol FilterDataProvider {
+  var outputImage: UIImage? { get }
+}
+
+extension ImageLoadOperation: FilterDataProvider {
+  
+}
 
 
 /*:
@@ -58,21 +74,38 @@ class TiltShiftOperation: Operation {
  - important:
  Heed all the usual warnings about custom operators. This is a situation where they can offer genuine clarity, but that isn't often the case.
  */
-// TODO
+precedencegroup Chainable {
+  associativity: left
+}
+infix operator |> : Chainable
+extension Operation {
+  static func |>(lhs: Operation, rhs: Operation) -> Operation {
+    rhs.addDependency(lhs)
+    return rhs
+  }
+}
+
 
 
 //: Create the relevant operations
-// TODO
+let imageLoad = ImageLoadOperation()
+let filter = TiltShiftOperation()
 
 //: Set the input parameter on the image loading operation:
-// TODO
+imageLoad.inputName = "train_day.jpg"
+
 
 //: And set the dependency chain
-// TODO
+imageLoad |> filter
 
 //: Add both operations to the operation queue
 let queue = OperationQueue()
-// TODO
+duration {
+  queue.addOperations([imageLoad, filter], waitUntilFinished: true)
+}
+
+
+filter.outputImage
 
 
 //: [➡ NSOperation in Practice](@next)
