@@ -29,7 +29,7 @@ public func tiltShift(image: UIImage?) -> UIImage? {
   return image.applyBlur(radius: 6, maskImage: mask)
 }
 
-func tiltShiftAsync(image: UIImage?, callback: (UIImage?) ->()) {
+func tiltShiftAsync(image: UIImage?, callback: @escaping (UIImage?) ->()) {
   OperationQueue().addOperation {
     let result = tiltShift(image: image)
     callback(result)

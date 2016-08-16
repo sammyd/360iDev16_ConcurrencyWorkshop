@@ -48,7 +48,7 @@ let queue = DispatchQueue(label: "com.razeware.sams-queue")
  ### Sample Async Operations
  */
 // Data load
-func loadData(_ callback: ([Int]) -> ()) {
+func loadData(_ callback: @escaping ([Int]) -> ()) {
   queue.async {
     usleep(500_000)
     callback(Array(1...10))
@@ -57,23 +57,23 @@ func loadData(_ callback: ([Int]) -> ()) {
 
 
 // Image load
-func loadImages(_ input: [Int], callback: ([String]) -> ()) {
+func loadImages(_ input: [Int], callback: @escaping ([String]) -> ()) {
   queue.async {
     usleep(500_000)
-    callback(input.map { String(repeating: Character("🐠") , count: $0) })
+    callback(input.map { String(repeating: "🐠" , count: $0) })
   }
 }
 
 
 // Image Processing
-func processImages(_ input: [String], callback: ([String]) -> ()) {
+func processImages(_ input: [String], callback: @escaping ([String]) -> ()) {
   queue.async {
     usleep(500_000)
     callback(input.map { $0.replacingOccurrences(of: "🐠🐠🐠🐠", with: "🐙") } )
   }
 }
 
-func secondaryProcessing(_ input: [String], callback: ([String]) -> ()) {
+func secondaryProcessing(_ input: [String], callback: @escaping ([String]) -> ()) {
   queue.async {
     usleep(1_000_000)
     callback(input.map { return "💄" + $0 + "🎏"} )

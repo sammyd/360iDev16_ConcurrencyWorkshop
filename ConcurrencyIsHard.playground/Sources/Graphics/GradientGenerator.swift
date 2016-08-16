@@ -35,7 +35,7 @@ func topAndBottomGradient(size: CGSize, clearLocations: [CGFloat] = [0.35, 0.65]
     ].map { $0.cgColor }
   let colorLocations : [CGFloat] = [0, clearLocations[0], (clearLocations[0] + clearLocations[1]) / 2.0, clearLocations[1], 1]
   
-  let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceGray(), colors: colors, locations: colorLocations)
+  let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceGray(), colors: colors as CFArray, locations: colorLocations)
   
   let startPoint = CGPoint(x: 0, y: 0)
   let endPoint = CGPoint(x: 0, y: size.height)

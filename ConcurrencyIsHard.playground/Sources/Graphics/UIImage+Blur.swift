@@ -61,7 +61,7 @@ extension UIImage {
       
       effectInContext.scaleBy(x: 1.0, y: -1.0)
       effectInContext.translateBy(x: 0, y: -size.height)
-      effectInContext.draw(in: imageRect, image: self.cgImage!)
+      effectInContext.draw(self.cgImage!, in: imageRect)
       
       var effectInBuffer = createEffectBuffer(context: effectInContext)
       
@@ -113,7 +113,7 @@ extension UIImage {
     outputContext!.translateBy(x: 0, y: -size.height)
     
     // Draw base image.
-    outputContext!.draw(in: imageRect, image: self.cgImage!)
+    outputContext!.draw(self.cgImage!, in: imageRect)
     
     // Draw effect image.
     if hasBlur {
@@ -124,7 +124,7 @@ extension UIImage {
           effectImage = UIImage(cgImage: effectCGImage)
         }
       }
-      outputContext!.draw(in: imageRect, image: effectImage.cgImage!)
+      outputContext!.draw(effectImage.cgImage!, in: imageRect)
       outputContext!.restoreGState()
     }
     

@@ -71,9 +71,16 @@ extension TiltShiftOperation: FilterDataProvider {
   
 }
 
-infix operator |> { associativity left precedence 150 }
-public func |>(lhs: Operation, rhs: Operation) -> Operation {
-  rhs.addDependency(lhs)
-  return rhs
+precedencegroup Chainable {
+  associativity: left
+}
+
+infix operator |> : Chainable
+
+public extension Operation {
+  public static func |>(lhs: Operation, rhs: Operation) -> Operation {
+    rhs.addDependency(lhs)
+    return rhs
+  }
 }
 

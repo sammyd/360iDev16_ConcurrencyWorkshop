@@ -29,7 +29,7 @@ public func simulateNetworkLoadImage(named: String?) -> UIImage? {
 }
 
 
-public func simulateAsyncNetworkLoadImage(named: String?, callback: (UIImage?) -> ()) {
+public func simulateAsyncNetworkLoadImage(named: String?, callback: @escaping (UIImage?) -> ()) {
   OperationQueue().addOperation {
     let image = simulateNetworkLoadImage(named: named)
     callback(image)

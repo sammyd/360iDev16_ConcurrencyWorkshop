@@ -23,7 +23,7 @@
 
 import Foundation
 
-public class Person {
+open class Person {
   private var firstName: String
   private var lastName: String
   
@@ -32,14 +32,14 @@ public class Person {
     self.lastName = lastName
   }
   
-  public func changeName(firstName: String, lastName: String) {
+  open func changeName(firstName: String, lastName: String) {
     randomDelay(maxDuration:  0.2)
     self.firstName = firstName
     randomDelay(maxDuration:  1)
     self.lastName = lastName
   }
   
-  public var name: String {
+  open var name: String {
     return "\(firstName) \(lastName)"
   }
 }

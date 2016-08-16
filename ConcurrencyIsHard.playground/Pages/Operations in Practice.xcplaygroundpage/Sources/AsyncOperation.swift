@@ -23,11 +23,11 @@
 
 import Foundation
 
-public class AsyncOperation: Operation {
+open class AsyncOperation: Operation {
   public enum State: String {
     case Ready, Executing, Finished
     
-    private var keyPath: String {
+    fileprivate var keyPath: String {
       return "is" + rawValue
     }
   }
@@ -47,23 +47,23 @@ public class AsyncOperation: Operation {
 
 extension AsyncOperation {
   // Operation Overrides
-  override public var isReady: Bool {
+  override open var isReady: Bool {
     return super.isReady && state == .Ready
   }
   
-  override public var isExecuting: Bool {
+  override open var isExecuting: Bool {
     return state == .Executing
   }
   
-  override public var isFinished: Bool {
+  override open var isFinished: Bool {
     return state == .Finished
   }
   
-  override public var isAsynchronous: Bool {
+  override open var isAsynchronous: Bool {
     return true
   }
   
-  override public func start() {
+  override open func start() {
     if isCancelled {
       state = .Finished
       return
@@ -73,7 +73,7 @@ extension AsyncOperation {
     state = .Executing
   }
   
-  public override func cancel() {
+  open override func cancel() {
     state = .Finished
   }
 }
