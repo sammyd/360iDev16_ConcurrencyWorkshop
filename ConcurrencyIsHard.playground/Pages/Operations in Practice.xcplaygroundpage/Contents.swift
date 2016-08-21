@@ -22,13 +22,30 @@ tableView.rowHeight = 250
 
 //: `ImageProvider` is a class that is responsible for loading and processing an image. It creates the relevant operations, chains them together, pops them on a queue and then ensures that the output is passed back appropriately
 class ImageProvider {
-  // TODO
+  let queue = OperationQueue()
+  
+  init(imageName: String, completion: @escaping (UIImage?) -> ()) {
+    let loadOp = ImageLoadOperation()
+    let tiltShiftOp = TiltShiftOperation()
+    let outputOp = ImageOutputOperation()
+    
+    loadOp.inputName = imageName
+    outputOp.completion = completion
+    
+    loadOp |> tiltShiftOp |> outputOp
+    
+    queue.addOperations([loadOp, tiltShiftOp, outputOp], waitUntilFinished: false)
+  }
+  
+  func cancel() {
+    queue.cancelAllOperations()
+  }
 }
 
 //: `DataSource` is a class that represents the table's datasource and delegate
 class DataSource: NSObject {
   var imageNames = [String]()
-  // TODO
+  var imageProviders = [IndexPath : ImageProvider]()
 }
 
 //: Possibly the simplest implementation of `UITableViewDataSource`:
@@ -42,17 +59,29 @@ extension DataSource: UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    // TODO
-    let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
-    
+    return tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
+  }
+}
+
+extension DataSource: UITableViewDelegate {
+  func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     if let cell = cell as? ImageCell {
-      let imageName = imageNames[indexPath.row]
-      let rawImage = simulateNetworkLoadImage(named: imageName)
-      let filteredImage = tiltShift(image: rawImage)
-      cell.fullImage = filteredImage
+      let provider = ImageProvider(imageName: imageNames[indexPath.row]){ (image) in
+        cell.transitionToImage(image: image)
+        self.imageProviders.removeValue(forKey: indexPath)
+      }
+      imageProviders[indexPath] = provider
     }
-    
-    return cell
+  }
+  
+  func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    if let cell = cell as? ImageCell {
+      cell.transitionToImage(image: .none)
+    }
+    if let provider = imageProviders[indexPath] {
+      provider.cancel()
+      imageProviders.removeValue(forKey: indexPath)
+    }
   }
 }
 
@@ -61,7 +90,7 @@ let ds = DataSource()
 ds.imageNames = ["dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg"]
 
 tableView.dataSource = ds
-// TODO
+tableView.delegate = ds
 
 /*:
  - note:
