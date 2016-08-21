@@ -32,12 +32,35 @@ class DataSource: NSObject {
 }
 
 //: Possibly the simplest implementation of `UITableViewDataSource`:
-// TODO
+extension DataSource: UITableViewDataSource {
+  func numberOfSections(in tableView: UITableView) -> Int {
+    return 1
+  }
+  
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return imageNames.count
+  }
+  
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    // TODO
+    let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
+    
+    if let cell = cell as? ImageCell {
+      let imageName = imageNames[indexPath.row]
+      let rawImage = simulateNetworkLoadImage(named: imageName)
+      let filteredImage = tiltShift(image: rawImage)
+      cell.fullImage = filteredImage
+    }
+    
+    return cell
+  }
+}
 
 //: Create a datasource and provide a list of images to display
 let ds = DataSource()
 ds.imageNames = ["dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg", "dark_road_small.jpg", "train_day.jpg", "train_dusk.jpg", "train_night.jpg"]
 
+tableView.dataSource = ds
 // TODO
 
 /*:
